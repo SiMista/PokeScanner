@@ -18,8 +18,8 @@
         tools:layout="@layout/fragment_dashboard" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="com.example.pokescanner.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_collection"
+        android:name="com.example.pokescanner.ui.collection.CollectionFragment"
+        android:label="@string/title_collection"
+        tools:layout="@layout/fragment_collection" />
 </navigation>

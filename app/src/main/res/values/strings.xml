@@ -2,5 +2,5 @@
     <string name="app_name">PokeScanner</string>
     <string name="title_home">Acceuil</string>
     <string name="title_dashboard">Yeah my g</string>
-    <string name="title_notifications">Notf</string>
+    <string name="title_collection">Collection</string>
 </resources>
