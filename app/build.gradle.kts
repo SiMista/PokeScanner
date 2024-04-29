@@ -51,4 +51,6 @@ dependencies {
     // Lifecycle components
     implementation(libs.lifecycle.extensions)
     implementation(libs.lifecycle.viewmodel.ktx.v240)
+    // osmdroid library for map
+    implementation(libs.osmdroid.android)
 }

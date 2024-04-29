@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PokeScanner</string>
+    <string name="title_home">Accueil</string>
     <string name="title_scanner">Scanner</string>
-    <string name="title_map">Map</string>
+    <string name="title_map">Carte</string>
     <string name="title_collection">Collection</string>
-    <string name="title_home">Home</string>
 </resources>
