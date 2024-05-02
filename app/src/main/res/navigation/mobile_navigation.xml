@@ -28,4 +28,10 @@
         android:name="com.example.pokescanner.ui.collection.CollectionFragment"
         android:label="@string/title_collection"
         tools:layout="@layout/fragment_collection" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="com.example.pokescanner.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

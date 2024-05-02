@@ -21,4 +21,8 @@
         android:icon="@drawable/collection_black_24dp"
         android:title="@string/title_collection" />
 
+    <item
+        android:id="@+id/navigation_settings"
+        android:icon="@drawable/settings_black_24dp"
+        android:title="@string/title_settings" />
 </menu>

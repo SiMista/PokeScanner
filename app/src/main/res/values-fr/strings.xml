@@ -5,4 +5,11 @@
     <string name="title_scanner">Scanner</string>
     <string name="title_map">Carte</string>
     <string name="title_collection">Collection</string>
+    <string name="title_settings">Paramètres</string>
+    <string name="select_language">Séléctionnez le langage</string>
+    <string-array name="language_options">
+        <item>Anglais</item>
+        <item>Français</item>
+    </string-array>
+    <string name="apply_changes">Appliquer</string>
 </resources>
