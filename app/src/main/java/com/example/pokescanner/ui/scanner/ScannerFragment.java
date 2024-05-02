@@ -1,46 +1,54 @@
 package com.example.pokescanner.ui.scanner;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.content.pm.PackageManager;
-import android.Manifest;
+import android.widget.Button;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageCaptureException;
+import androidx.camera.core.Preview;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 
+import com.example.pokescanner.database.ImagesDataSource;
 import com.example.pokescanner.databinding.FragmentScannerBinding;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import androidx.camera.core.Camera;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.Preview;
-import androidx.camera.lifecycle.ProcessCameraProvider;
-import androidx.core.content.ContextCompat;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ScannerFragment extends Fragment {
     private FragmentScannerBinding binding;
     private ActivityResultLauncher<String> requestPermissionLauncher;
+    private ImageCapture imageCapture;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentScannerBinding.inflate(inflater, container, false);
+        Button captureButton = binding.buttonCapture;
         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // La permission n'est pas accordée, demande la permission
             requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA_PERMISSION);
         } else {
-            // La permission est déjà accordée, continue avec l'accès à la caméra
             startCamera();
         }
-        startCamera(); // Start camera on view creation
+
+        captureButton.setOnClickListener(v -> takePhoto());
         return binding.getRoot();
     }
+
 
     private static final int REQUEST_CAMERA_PERMISSION = 101;
 
@@ -66,6 +74,7 @@ public class ScannerFragment extends Fragment {
     }
 
     private void startCamera() {
+        Log.e("PERSO", "Caméra lancée");
         final PreviewView viewFinder = binding.viewFinder;
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
 
@@ -77,13 +86,52 @@ public class ScannerFragment extends Fragment {
 
                 CameraSelector cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
+                imageCapture = new ImageCapture.Builder()
+                        .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+                        .build();
+
                 cameraProvider.unbindAll(); // Unbind use cases before rebinding
-                Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview);
+                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
             } catch (Exception e) {
                 Log.e("CameraX", "Use case binding failed", e);
             }
         }, ContextCompat.getMainExecutor(requireContext()));
     }
+
+
+    private void takePhoto() {
+        Log.d("PERSO", "Photo prise");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
+        String dateTime = sdf.format(new Date());
+        File photoFile = new File(getContext().getExternalFilesDir(null), "PIC_" + dateTime + ".jpg");
+
+        ImageCapture.OutputFileOptions outputFileOptions = new ImageCapture.OutputFileOptions.Builder(photoFile).build();
+        imageCapture.takePicture(outputFileOptions, ContextCompat.getMainExecutor(getContext()),
+                new ImageCapture.OnImageSavedCallback() {
+                    @Override
+                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults outputFileResults) {
+                        // Photo capture succeeded
+                        String savedUri = outputFileResults.getSavedUri() != null ? outputFileResults.getSavedUri().toString() : photoFile.getAbsolutePath();
+                        Log.d("CameraXApp", "Photo capture succeeded: " + savedUri);
+
+                        // Save image path in SQLite database
+                        saveImagePath(savedUri);
+                    }
+
+                    @Override
+                    public void onError(@NonNull ImageCaptureException exception) {
+                        Log.e("CameraXApp", "Photo capture failed: " + exception.getMessage());
+                    }
+                });
+    }
+
+    private void saveImagePath(String imagePath) {
+        ImagesDataSource dataSource = new ImagesDataSource(getContext());
+        dataSource.open();
+        dataSource.insertImage(imagePath);
+        dataSource.close();
+    }
+
 
     @Override
     public void onDestroyView() {

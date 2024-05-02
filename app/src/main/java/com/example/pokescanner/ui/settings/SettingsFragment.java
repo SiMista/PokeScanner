@@ -45,15 +45,6 @@ public class SettingsFragment extends Fragment {
         return view;
     }
 
-    private void applyLanguageChange() {
-        Locale locale = new Locale(selectedLanguageCode);
-        Locale.setDefault(locale);
-        Configuration config = new Configuration();
-        config.locale = locale;
-        getContext().getResources().updateConfiguration(config, getContext().getResources().getDisplayMetrics());
-        getActivity().recreate(); // Recreate the activity to apply the language change.
-    }
-
     private void changeLanguage(int position) {
         switch (position) {
             case 0:
@@ -68,5 +59,14 @@ public class SettingsFragment extends Fragment {
         Configuration config = new Configuration();
         config.locale = locale;
         getContext().getResources().updateConfiguration(config, getContext().getResources().getDisplayMetrics());
+    }
+
+    private void applyLanguageChange() {
+        Locale locale = new Locale(selectedLanguageCode);
+        Locale.setDefault(locale);
+        Configuration config = new Configuration();
+        config.locale = locale;
+        getContext().getResources().updateConfiguration(config, getContext().getResources().getDisplayMetrics());
+        getActivity().recreate(); // Recreate the activity to apply the language change.
     }
 }
