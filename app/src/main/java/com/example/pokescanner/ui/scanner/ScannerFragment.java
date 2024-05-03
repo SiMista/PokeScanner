@@ -1,6 +1,8 @@
 package com.example.pokescanner.ui.scanner;
 
 import android.Manifest;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -21,6 +23,7 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.pokescanner.R;
 import com.example.pokescanner.database.ImagesDataSource;
 import com.example.pokescanner.databinding.FragmentScannerBinding;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -74,7 +77,7 @@ public class ScannerFragment extends Fragment {
     }
 
     private void startCamera() {
-        Log.e("PERSO", "Caméra lancée");
+        Log.e("Camera", "Caméra lancée");
         final PreviewView viewFinder = binding.viewFinder;
         final ListenableFuture<ProcessCameraProvider> cameraProviderFuture = ProcessCameraProvider.getInstance(requireContext());
 
@@ -100,7 +103,7 @@ public class ScannerFragment extends Fragment {
 
 
     private void takePhoto() {
-        Log.d("PERSO", "Photo prise");
+        Log.d("Photo", "Photo has been taken");
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault());
         String dateTime = sdf.format(new Date());
         File photoFile = new File(getContext().getExternalFilesDir(null), "PIC_" + dateTime + ".jpg");
@@ -116,6 +119,7 @@ public class ScannerFragment extends Fragment {
 
                         // Save image path in SQLite database
                         saveImagePath(savedUri);
+                        triggerFlashAnimation(); // Déclencher l'effet de flash
                     }
 
                     @Override
@@ -130,6 +134,22 @@ public class ScannerFragment extends Fragment {
         dataSource.open();
         dataSource.insertImage(imagePath);
         dataSource.close();
+    }
+
+    private void triggerFlashAnimation() {
+        View flashView = getView().findViewById(R.id.flashView);
+        flashView.setVisibility(View.VISIBLE);
+        flashView.animate()
+                .alpha(0f)
+                .setDuration(300) // Durée en millisecondes
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        flashView.setVisibility(View.GONE);
+                        flashView.setAlpha(1f); // Reset l'opacité pour la prochaine utilisation
+                    }
+                });
     }
 
 
